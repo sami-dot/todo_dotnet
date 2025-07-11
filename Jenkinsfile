@@ -14,7 +14,7 @@ pipeline {
             steps {
                 git credentialsId: "${GIT_CREDENTIALS}", url: 'https://github.com/sami-dot/todo_dotnet.git'
         }
-
+        }
         stage('Restore') {
             steps {
                 sh "dotnet restore"
