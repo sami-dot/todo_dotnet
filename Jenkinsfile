@@ -7,7 +7,7 @@ pipeline {
         NEXUS_URL = 'http://192.168.47.158:8081/repository/dotnet-artifacts/'
         PROJECT_NAME = 'TodoApi'
         DOTNET_VERSION = '8.0' 
-        CONNECTION_STRING = 'Server=localhost;Database=TodoDb;User Id=sa;Password=@Admin1234!;'
+        CONNECTION_STRING = 'Server=192.168.47.76;Database=TodoDb;User Id=sa;Password=@Admin1234!;'
 
     }
 
@@ -42,7 +42,7 @@ pipeline {
                     dotnet tool install --global dotnet-ef || true
 
                     # Run migration using full path to dotnet-ef
-                    "$DOTNET_TOOLS/dotnet-ef" database update --connection "Server=localhost;Database=TodoDb;User Id=sa;Password=@Admin1234!"
+                    "$DOTNET_TOOLS/dotnet-ef" database update --connection "Server=192.168.47.76;Database=TodoDb;User Id=sa;Password=@Admin1234!"
                 '''
             }
         }
