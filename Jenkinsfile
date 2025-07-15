@@ -84,32 +84,35 @@ pipeline {
                 }
             }
         }
-        stage('Deploy on VM') {
-            steps {
-                script {
-                    // Compose Nexus artifact URL with build number
-                    def artifactUrl = "${NEXUS_URL}${PROJECT_NAME}-${env.BUILD_NUMBER}.zip"
-                    def deployDir = "${DEPLOY_DIR}"
+       stage('Deploy on VM') {
+    steps {
+        script {
+            // Compose Nexus artifact URL with build number
+            def artifactUrl = "${NEXUS_URL}${PROJECT_NAME}-${env.BUILD_NUMBER}.zip"
+            def deployDir = "${DEPLOY_DIR}"
 
-                    sh """
-                    echo "Cleaning deployment directory..."
-                    rm -rf ${deployDir}
-                    mkdir -p ${deployDir}
+            withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                sh """
+                echo "Cleaning deployment directory..."
+                rm -rf ${deployDir}
+                mkdir -p ${deployDir}
 
-                    echo "Downloading artifact from Nexus..."
-                    wget -O ${deployDir}/${PROJECT_NAME}.zip "${artifactUrl}"
+                echo "Downloading artifact from Nexus..."
+                wget --user="\$NEXUS_USER" --password="\$NEXUS_PASS" -O ${deployDir}/${PROJECT_NAME}.zip "${artifactUrl}"
 
-                    echo "Unzipping artifact..."
-                    unzip -o ${deployDir}/${PROJECT_NAME}.zip -d ${deployDir}
+                echo "Unzipping artifact..."
+                unzip -o ${deployDir}/${PROJECT_NAME}.zip -d ${deployDir}
 
-                    echo "Stopping any running instances of the app..."
-                    pkill -f ${PROJECT_NAME}.dll || true
+                echo "Stopping any running instances of the app..."
+                pkill -f ${PROJECT_NAME}.dll || true
 
-                    echo "Starting the app in background..."
-                    nohup dotnet ${deployDir}/${PROJECT_NAME}.dll > ${deployDir}/app.log 2>&1 &
-                    """
-                }
+                echo "Starting the app in background..."
+                nohup dotnet ${deployDir}/${PROJECT_NAME}.dll > ${deployDir}/app.log 2>&1 &
+                """
             }
         }
+    }
+}
+
     }
 }
