@@ -59,8 +59,12 @@ pipeline {
         }
         stage('Publish') {
             steps {
-                sh "dotnet publish -c Release -o publish"
-            }
+            sh '''
+            echo "🧹 Cleaning previous publish directory..."
+            rm -rf publish/
+            dotnet publish TodoApi.csproj -c Release -o publish
+            '''
+    }
         }
 
         stage('Package') {
