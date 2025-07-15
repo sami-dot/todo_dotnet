@@ -29,23 +29,33 @@ pipeline {
             }
         }
         
-        stage('Apply EF Core Migrations') {
+       stage('Apply EF Core Migrations') {
             steps {
                 sh '''
                     echo 🧱 Applying EF Core migrations...
+
+                    # Define tools path
+                    DOTNET_TOOLS="$HOME/.dotnet/tools"
+                    export PATH="$PATH:$DOTNET_TOOLS"
+
+                    # Install dotnet-ef if not present
                     dotnet tool install --global dotnet-ef || true
-                    export PATH="$PATH:/root/.dotnet/tools"
-                    dotnet ef database update --connection "$CONNECTION_STRING"
+
+                    # Run migration using full path to dotnet-ef
+                    "$DOTNET_TOOLS/dotnet-ef" database update --connection "Server=localhost;Database=TodoDb;User Id=sa;Password=@Admin1234!"
                 '''
             }
         }
+
         stage('Migrate Database') {
             steps {
-                // Assuming your project has migrations configured
-                sh "dotnet ef database update"
+                sh '''
+                    DOTNET_TOOLS="$HOME/.dotnet/tools"
+                    export PATH="$PATH:$DOTNET_TOOLS"
+                    "$DOTNET_TOOLS/dotnet-ef" database update
+                '''
             }
         }
-
         stage('Publish') {
             steps {
                 sh "dotnet publish -c Release -o publish"
