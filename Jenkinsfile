@@ -49,11 +49,11 @@ pipeline {
 
         stage('Migrate Database') {
             steps {
-                sh '''
-                    DOTNET_TOOLS="$HOME/.dotnet/tools"
-                    export PATH="$PATH:$DOTNET_TOOLS"
-                    "$DOTNET_TOOLS/dotnet-ef" database update
-                '''
+                sh '''#!/bin/bash
+      DOTNET_TOOLS=/var/lib/jenkins/.dotnet/tools
+      export PATH=$PATH:$DOTNET_TOOLS
+      dotnet-ef database update --connection "${CONNECTION_STRING}"
+        '''
             }
         }
         stage('Publish') {
