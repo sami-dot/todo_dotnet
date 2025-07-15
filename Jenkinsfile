@@ -8,6 +8,7 @@ pipeline {
         PROJECT_NAME = 'TodoApi'
         DOTNET_VERSION = '8.0' 
         CONNECTION_STRING = 'Server=192.168.47.76;Database=TodoDb;User Id=sa;Password=@Admin1234!;Encrypt=False;TrustServerCertificate=True;'
+        DEPLOY_DIR = '/var/lib/jenkins/todoapi'  // Deployment folder on your VM
 
     }
 
@@ -76,6 +77,33 @@ pipeline {
                         curl -v -u $NEXUS_USER:$NEXUS_PASS --upload-file ${PROJECT_NAME}.zip ${NEXUS_URL}${PROJECT_NAME}-${env.BUILD_NUMBER}.zip
                         """
                     }
+                }
+            }
+        }
+        stage('Deploy on VM') {
+            steps {
+                script {
+                    // Compose Nexus artifact URL with build number
+                    def artifactUrl = "${NEXUS_URL}${PROJECT_NAME}-${env.BUILD_NUMBER}.zip"
+                    def deployDir = "${DEPLOY_DIR}"
+
+                    sh """
+                    echo "Cleaning deployment directory..."
+                    rm -rf ${deployDir}
+                    mkdir -p ${deployDir}
+
+                    echo "Downloading artifact from Nexus..."
+                    wget -O ${deployDir}/${PROJECT_NAME}.zip "${artifactUrl}"
+
+                    echo "Unzipping artifact..."
+                    unzip -o ${deployDir}/${PROJECT_NAME}.zip -d ${deployDir}
+
+                    echo "Stopping any running instances of the app..."
+                    pkill -f ${PROJECT_NAME}.dll || true
+
+                    echo "Starting the app in background..."
+                    nohup dotnet ${deployDir}/${PROJECT_NAME}.dll > ${deployDir}/app.log 2>&1 &
+                    """
                 }
             }
         }
