@@ -7,7 +7,7 @@ pipeline {
         NEXUS_URL = 'http://192.168.47.158:8081/repository/dotnet-artifacts/'
         PROJECT_NAME = 'TodoApi'
         DOTNET_VERSION = '8.0' 
-        string CONNECTION_STRING = "Server=localhost;Database=TodoDb;User Id=sa;Password=@Admin1234!;";
+        CONNECTION_STRING = 'Server=localhost;Database=TodoDb;User Id=sa;Password=@Admin1234!;'
 
     }
 
