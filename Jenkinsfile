@@ -2,11 +2,13 @@ pipeline {
     agent any
 
     environment {
-        GIT_CREDENTIALS = 'github-pat'      // Your Jenkins GitHub credentials ID
-        NEXUS_CREDENTIALS = 'nexus-admin'     // Your Jenkins Nexus credentials ID
-        NEXUS_URL = 'http://192.168.249.158:8081/repository/dotnet-artifacts/'
+        GIT_CREDENTIALS = 'github-token'      // Your Jenkins GitHub credentials ID
+        NEXUS_CREDENTIALS = 'nexus-creds'     // Your Jenkins Nexus credentials ID
+        NEXUS_URL = 'http://192.168.47.158:8081/repository/dotnet-artifacts/'
         PROJECT_NAME = 'TodoApi'
-        DOTNET_VERSION = '8.0'                    // Adjust if needed
+        DOTNET_VERSION = '8.0' 
+        string CONNECTION_STRING = "Server=localhost;Database=TodoDb;User Id=sa;Password=@Admin1234!;";
+
     }
 
     stages {
@@ -26,7 +28,17 @@ pipeline {
                 sh "dotnet build --configuration Release"
             }
         }
-
+        
+        stage('Apply EF Core Migrations') {
+            steps {
+                sh '''
+                    echo 🧱 Applying EF Core migrations...
+                    dotnet tool install --global dotnet-ef || true
+                    export PATH="$PATH:/root/.dotnet/tools"
+                    dotnet ef database update --connection "$CONNECTION_STRING"
+                '''
+            }
+        }
         stage('Migrate Database') {
             steps {
                 // Assuming your project has migrations configured
