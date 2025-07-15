@@ -14,8 +14,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: "${GIT_CREDENTIALS}", url: 'https://github.com/sami-dot/todo_dotnet.git'
-        }
+                git branch: 'main', credentialsId: "${GIT_CREDENTIALS}", url: 'https://github.com/sami-dot/todo_dotnet.git'
+            }
         }
         stage('Restore') {
             steps {
